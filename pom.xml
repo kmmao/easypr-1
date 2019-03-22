@@ -11,6 +11,7 @@
     <groupId>com.jxut</groupId>
     <artifactId>easypr</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
     <name>easypr</name>
     <description>Demo project for Spring Boot</description>
 
@@ -30,18 +31,27 @@
             <scope>test</scope>
         </dependency>
 
-        <!--<dependency>-->
-            <!--<groupId>org.bytedeco.javacpp-presets</groupId>-->
-            <!--<artifactId>opencv</artifactId>-->
-            <!--<version>3.2.0-1.3</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-rest</artifactId>
+            <version>2.1.2.RELEASE</version>
+        </dependency>
 
-        <!--&lt;!&ndash; https://mvnrepository.com/artifact/org.bytedeco/javacpp &ndash;&gt;-->
-        <!--<dependency>-->
-            <!--<groupId>org.bytedeco</groupId>-->
-            <!--<artifactId>javacpp</artifactId>-->
-            <!--<version>1.3.2</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.45</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
 
 
     </dependencies>

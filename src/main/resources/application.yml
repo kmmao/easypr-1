@@ -1,3 +1,14 @@
 
 server:
   port: 8011
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: a1170712462
+    url: jdbc:mysql://localhost:3306/easypr?characterEncoding=utf-8&useSSl=false
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+
