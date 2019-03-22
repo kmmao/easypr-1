@@ -2,8 +2,11 @@ package com.jxut.easypr.controller;
 
 import com.jxut.easypr.core.CharsRecognise;
 import com.jxut.easypr.core.PlateDetect;
+import com.jxut.easypr.entity.User;
+import com.jxut.easypr.repository.UserRepository;
 import com.jxut.easypr.service.Imp.PlateRecogniseServiceImp;
 import com.jxut.easypr.service.PlateRecogniseService;
+import net.bytebuddy.asm.Advice;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -34,10 +37,12 @@ public class FileUploadController {
     @Autowired
     private PlateRecogniseServiceImp plateRecogniseServiceImp;
 
+    @Autowired
+    private UserRepository userRepository;
 
     @PostMapping("/upload")
 
-    public String upload(@RequestParam(value = "file")MultipartFile file, Model model, HttpServletRequest request) {
+    public User upload(@RequestParam(value = "file")MultipartFile file, Model model, HttpServletRequest request) {
         if (file.isEmpty()) {
             System.out.println("文件为空空");
         }
@@ -58,7 +63,9 @@ public class FileUploadController {
 
         Mat src=opencv_imgcodecs.imread(filePath+fileName);
         String ret = plateRecogniseServiceImp.plateRecognise(src);
+        User result=userRepository.findOneByUserPlate(ret);
 
-        return ret;
+
+        return result;
     }
 }
