@@ -42,7 +42,7 @@ public class FileUploadController {
 
     @PostMapping("/upload")
 
-    public User upload(@RequestParam(value = "file")MultipartFile file, Model model, HttpServletRequest request) {
+    public String upload(@RequestParam(value = "file")MultipartFile file, Model model, HttpServletRequest request) {
         if (file.isEmpty()) {
             System.out.println("文件为空空");
         }
@@ -65,7 +65,12 @@ public class FileUploadController {
         String ret = plateRecogniseServiceImp.plateRecognise(src);
         User result=userRepository.findOneByUserPlate(ret);
 
+        if(result==null) {
+            return "fail";
+        }
 
-        return result;
+
+
+        return "success";
     }
 }

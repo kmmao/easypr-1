@@ -3,6 +3,8 @@ package com.jxut.easypr.entity;
 import lombok.Data;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.util.Date;
 
@@ -18,6 +20,7 @@ public class User {
 
     //用户Id
     @Id
+    @GeneratedValue
     private long userId;
 
     //用户车牌号 因为可能该用户不止一个车所以
