@@ -27,10 +27,13 @@ public class User {
     private String userPlate;
 
     //用户手机号
-    private String phoneNumber;
+    private String userPhone;
 
     //用户名
     private String userName;
+
+    //身份证号
+    private String userIdNumber;
 
     //用户创建时间
     private Date createTime;
