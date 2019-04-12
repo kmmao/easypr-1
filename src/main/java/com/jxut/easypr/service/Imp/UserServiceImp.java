@@ -27,7 +27,6 @@ public class UserServiceImp implements UserService {
     @Override
     public User findOne(long userId) {
         User result=userRepository.findOneByUserId(userId);
-
         return result;
     }
 
@@ -45,4 +44,5 @@ public class UserServiceImp implements UserService {
     public List<User> findAll() {
         return userRepository.findAll();
     }
+
 }

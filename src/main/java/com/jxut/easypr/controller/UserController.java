@@ -10,6 +10,7 @@ import com.jxut.easypr.util.ResultVOUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,13 +55,14 @@ public class UserController {
 
     //获取所有用户列表
     @GetMapping("/listAll")
-    public List<User> listAll(){
-        return userService.findAll();
+    public ResultVO listAll(){
+        List<User> list=userService.findAll();
+        return ResultVOUtil.success(list);
     }
 
     //删除用户
     @PostMapping("/delete")
-    public ResultVO delete(@Valid long userId) throws UserException {
+    public ResultVO delete( Long userId) throws UserException {
         User result = userService.findOne(userId);
 
         if (result==null) {
@@ -72,6 +74,31 @@ public class UserController {
         UserVO userVO=new UserVO();
         BeanUtils.copyProperties(result,userVO);
 
+         return ResultVOUtil.success(userVO);
+    }
+
+    //更新用户
+    //新增用户
+    @PostMapping("/update")
+    @Modifying
+    public ResultVO update(@Valid UserVO userVO,
+                           BindingResult bingingResult) throws UserException {
+        if(bingingResult.hasErrors()) {
+            log.error("创建订单 参数不正确 userVO={}",userVO);
+
+            throw new UserException(500,"参数错误");
+        }
+
+        User user=UserVO2User.converter(userVO);
+
+        User result=userService.save(user);
+
+        if (result==null) {
+            throw new UserException(500,"添加失败");
+        }
+
         return ResultVOUtil.success(userVO);
     }
+
+
 }

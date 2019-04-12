@@ -21,4 +21,5 @@ public interface UserService {
     void delete(long userId);
 
     List<User> findAll();
+
 }

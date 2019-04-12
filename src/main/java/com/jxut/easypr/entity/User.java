@@ -1,6 +1,8 @@
 package com.jxut.easypr.entity;
 
 import lombok.Data;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,12 +18,14 @@ import java.util.Date;
 
 @Entity
 @Data
+@DynamicInsert
+@DynamicUpdate
 public class User {
 
     //用户Id
     @Id
     @GeneratedValue
-    private long userId;
+    private Long userId;
 
     //用户车牌号 因为可能该用户不止一个车所以
     private String userPlate;
