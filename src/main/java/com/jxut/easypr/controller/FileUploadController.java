@@ -6,6 +6,7 @@ import com.jxut.easypr.entity.User;
 import com.jxut.easypr.repository.UserRepository;
 import com.jxut.easypr.service.Imp.PlateRecogniseServiceImp;
 import com.jxut.easypr.service.PlateRecogniseService;
+import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.asm.Advice;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ import java.util.Vector;
  */
 @RestController
 @RequestMapping("/easy")
+@Slf4j
 
 public class FileUploadController {
 
@@ -44,7 +46,7 @@ public class FileUploadController {
 
     public String upload(@RequestParam(value = "file")MultipartFile file, Model model, HttpServletRequest request) {
         if (file.isEmpty()) {
-            System.out.println("文件为空空");
+            log.error("文件为空");
         }
         String fileName = file.getOriginalFilename();  // 文件名
         String suffixName = fileName.substring(fileName.lastIndexOf("."));  // 后缀名
@@ -63,14 +65,16 @@ public class FileUploadController {
 
         Mat src=opencv_imgcodecs.imread(filePath+fileName);
         String ret = plateRecogniseServiceImp.plateRecognise(src);
+        log.info("plate={}",ret);
+
+        if(ret==null) {
+            return "fail";
+        }
         User result=userRepository.findOneByUserPlate(ret);
 
         if(result==null) {
             return "fail";
         }
-
-
-
         return "success";
     }
 }

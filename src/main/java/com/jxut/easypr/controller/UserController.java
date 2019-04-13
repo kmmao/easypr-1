@@ -47,6 +47,7 @@ public class UserController {
         User result=userService.save(user);
 
         if (result==null) {
+            log.error("添加失败");
             throw new UserException(500,"添加失败");
         }
 
@@ -66,6 +67,7 @@ public class UserController {
         User result = userService.findOne(userId);
 
         if (result==null) {
+            log.error("用户未找到");
             throw new UserException(500,"用户未找到");
         }
 
@@ -97,6 +99,7 @@ public class UserController {
             throw new UserException(500,"添加失败");
         }
 
+        log.info("userVO={}",userVO);
         return ResultVOUtil.success(userVO);
     }
 
