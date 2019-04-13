@@ -3,6 +3,8 @@ package com.jxut.easypr.service;
 import com.jxut.easypr.entity.FaceUser;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * @Author JXUT CXY
  * @Description
@@ -18,4 +20,6 @@ public interface FaceUserService {
     void delete(Long faceId);
 
     FaceUser findOne(Long faceId);
+
+    List<FaceUser> findAll();
 }

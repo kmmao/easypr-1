@@ -80,7 +80,6 @@ public class UserController {
     }
 
     //更新用户
-    //新增用户
     @PostMapping("/update")
     @Modifying
     public ResultVO update(@Valid UserVO userVO,
@@ -99,6 +98,8 @@ public class UserController {
             throw new UserException(500,"添加失败");
         }
 
+
+        //TODO 覆盖问题待解决
         log.info("userVO={}",userVO);
         return ResultVOUtil.success(userVO);
     }

@@ -31,7 +31,7 @@ public class FaceUser {
     private String faceBaiduId;
 
     //用户手机号
-    private String faceNumber;
+    private String facePhoneNumber;
 
     //最后一次进入的时间
     private Date enterTime;
