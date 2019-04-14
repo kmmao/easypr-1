@@ -43,4 +43,16 @@ public class UserServiceImp implements UserService {
         return userRepository.findAll();
     }
 
+    @Override
+    public User update(User user) {
+        if (user.getUserId() == null)
+            return null;
+
+        User source=userRepository.findOneByUserId(user.getUserId());
+
+        source.copy(user);
+
+        return userRepository.saveAndFlush(source);
+    }
+
 }

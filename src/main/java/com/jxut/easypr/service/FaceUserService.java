@@ -22,4 +22,6 @@ public interface FaceUserService {
     FaceUser findOne(Long faceId);
 
     List<FaceUser> findAll();
+
+    FaceUser update(FaceUser faceUser);
 }

@@ -92,7 +92,7 @@ public class UserController {
 
         User user=UserVO2User.converter(userVO);
 
-        User result=userService.save(user);
+        User result=userService.update(user);
 
         if (result==null) {
             throw new UserException(500,"添加失败");
@@ -101,7 +101,7 @@ public class UserController {
 
         //TODO 覆盖问题待解决
         log.info("userVO={}",userVO);
-        return ResultVOUtil.success(userVO);
+        return ResultVOUtil.success(result);
     }
 
 

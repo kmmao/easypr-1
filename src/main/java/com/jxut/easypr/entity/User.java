@@ -1,5 +1,6 @@
 package com.jxut.easypr.entity;
 
+import com.jxut.easypr.util.BeanCopyUtil;
 import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -18,8 +19,6 @@ import java.util.Date;
 
 @Entity
 @Data
-@DynamicInsert
-@DynamicUpdate
 public class User {
 
     //用户Id
@@ -45,6 +44,8 @@ public class User {
     //更新时间
     private Date updateTime;
 
-
+    public void copy(User user) {
+        BeanCopyUtil.beanCopyWithIngore(user, this, "userId");
+    }
 
 }

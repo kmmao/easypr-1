@@ -140,8 +140,8 @@ public class FaceUserController {
 
         BeanUtils.copyProperties(faceUserVO,faceUser);
 
-        FaceUser result=faceUserService.save(faceUser);
-        //TODO 覆盖问题待解决
+        FaceUser result=faceUserService.update(faceUser);
+        //TODO 已解决
 
         return ResultVOUtil.success(result);
     }

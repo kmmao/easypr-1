@@ -1,5 +1,6 @@
 package com.jxut.easypr.entity;
 
+import com.jxut.easypr.util.BeanCopyUtil;
 import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -16,8 +17,6 @@ import java.util.Date;
  */
 @Entity
 @Data
-@DynamicInsert
-@DynamicUpdate
 public class FaceUser {
     @Id
     @GeneratedValue
@@ -39,5 +38,8 @@ public class FaceUser {
     //用户组
     private String groupId;
 
+    public void copy(FaceUser faceUser) {
+        BeanCopyUtil.beanCopyWithIngore(faceUser, this, "faceId");
+    }
 
 }
