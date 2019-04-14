@@ -4,6 +4,7 @@ import com.baidu.aip.face.AipFace;
 import com.jxut.easypr.VO.FaceUserVO;
 import com.jxut.easypr.VO.ResultVO;
 import com.jxut.easypr.entity.FaceUser;
+import com.jxut.easypr.entity.User;
 import com.jxut.easypr.exception.UserException;
 import com.jxut.easypr.service.FaceUserService;
 import com.jxut.easypr.util.ResultVOUtil;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,10 +45,13 @@ public class FaceUserController {
 
 
     //新增用户
+    @Transactional
     @PostMapping("/create")
     public ResultVO create(FaceUserVO faceUserVO, @RequestParam(value = "facePic") MultipartFile facePic) throws IOException, UserException {
         if (facePic.isEmpty()) {
             log.error("文件为空");
+
+            throw new UserException(500,"文件夹为空");
         }
 
         if(faceUserVO == null) {
@@ -77,19 +82,17 @@ public class FaceUserController {
         log.info(res.toString());
 
         //[判断是否上传成功
-        if (res.get("error_msg") == "SUCCESS"){
-            faceUser.setEnterTime(new Date());
+        if (res.get("error_msg") != "SUCCESS"){
 
-            faceUserService.save(faceUser);
-
-            return ResultVOUtil.success(faceUser);
-
+            log.error((String)res.get("error_msg"));
+            throw new UserException(500,(String) res.get("error_msg"));
 
         }
         return ResultVOUtil.error(500, (String) res.get("error_msg"),faceUserVO);
     }
 
     //删除用户
+    @Transactional
     @PostMapping("/delete")
     public ResultVO delete(Long faceId) throws UserException {
         FaceUser result=faceUserService.findOne(faceId);
@@ -103,18 +106,22 @@ public class FaceUserController {
 
         log.info(res.toString());
 
-        if (res.get("error_msg") == "SUCCESS") {
-            faceUserService.delete(faceId);
+        if (res.get("error_msg") != "SUCCESS") {
+            FaceUserVO faceUserVO=new FaceUserVO();
 
-            return ResultVOUtil.success(result);
+            BeanUtils.copyProperties(result,faceUserVO);
+
+            log.error((String)res.get("error_msg"));
+
+            throw new UserException( 500,(String) res.get("error_msg"));
         }
 
+        faceUserService.delete(faceId);
 
-        FaceUserVO faceUserVO=new FaceUserVO();
+        return ResultVOUtil.success(result);
 
-        BeanUtils.copyProperties(result,faceUserVO);
 
-        return ResultVOUtil.error(500,(String) res.get("error_msg"),result);
+
     }
 
     //获取所有用户的信息
@@ -128,7 +135,8 @@ public class FaceUserController {
 
         return ResultVOUtil.success(result);
     }
-
+    //更新用户
+    @Transactional
     @PostMapping("/update")
     public ResultVO update(FaceUserVO faceUserVO) throws UserException {
         if(faceUserVO == null) {
@@ -144,5 +152,45 @@ public class FaceUserController {
         //TODO 已解决
 
         return ResultVOUtil.success(result);
+    }
+
+    //查找单个用户
+    @GetMapping("/search")
+    public ResultVO findOne(Long faceId) throws UserException {
+        if(faceId == null) {
+            log.error("NullPointError");
+
+            throw new UserException(500,"传入参数为空");
+        }
+
+        FaceUser result=faceUserService.findOne(faceId);
+
+        return ResultVOUtil.success(result);
+    }
+
+    //更新人脸
+    @PostMapping("/updateface")
+    public ResultVO updateface(Long faceId,@RequestParam(value = "facePic") MultipartFile facePic) throws UserException {
+        FaceUser source=faceUserService.findOne(faceId);
+
+        String result = null;
+        //base64编码
+        try{
+            byte[] faceByte=facePic.getBytes();
+
+            result=Base64.getEncoder().encodeToString(faceByte);
+
+        } catch (IOException ex) {
+            log.error(ex.toString());
+        }
+
+        JSONObject res=client.updateUser(result,"BASE64",source.getGroupId(),source.getFaceBaiduId(),null);
+
+        if(res.get("error_msg")!= "SUCCESS"){
+            log.error((String) res.get("error_msg"));
+
+            throw new UserException(500,(String) res.get("error_msg"));
+        }
+        return ResultVOUtil.success(source);
     }
 }
