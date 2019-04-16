@@ -8,6 +8,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.validation.constraints.NotEmpty;
 import java.util.Date;
 
 /**
@@ -27,6 +28,7 @@ public class FaceUser {
     private String faceName;
 
     //对应的百度云userId
+    @NotEmpty
     private String faceBaiduId;
 
     //用户手机号
@@ -36,6 +38,7 @@ public class FaceUser {
     private Date enterTime;
 
     //用户组
+    @NotEmpty
     private String groupId;
 
     public void copy(FaceUser faceUser) {

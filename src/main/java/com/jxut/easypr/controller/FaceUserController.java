@@ -13,9 +13,11 @@ import org.json.JSONObject;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
@@ -47,17 +49,18 @@ public class FaceUserController {
     //新增用户
     @Transactional
     @PostMapping("/create")
-    public ResultVO create(FaceUserVO faceUserVO, @RequestParam(value = "facePic") MultipartFile facePic) throws IOException, UserException {
+    public ResultVO create(@Valid FaceUserVO faceUserVO, @RequestParam(value = "facePic") MultipartFile facePic) throws IOException, UserException {
+        Object savePoint = TransactionAspectSupport.currentTransactionStatus().createSavepoint();
         if (facePic.isEmpty()) {
             log.error("文件为空");
 
-            throw new UserException(500,"文件夹为空");
+            throw new UserException(500,"文件夹为空",faceUserVO,savePoint);
         }
 
         if(faceUserVO == null) {
             log.error("NullPointError");
 
-            throw new UserException(500,"传入参数为空");
+            throw new UserException(500,"参数为空",faceUserVO,savePoint);
         }
 
         String result=null;
@@ -85,7 +88,7 @@ public class FaceUserController {
         if (res.get("error_msg") != "SUCCESS"){
 
             log.error((String)res.get("error_msg"));
-            throw new UserException(500,(String) res.get("error_msg"));
+            throw new UserException(500,(String) res.get("error_msg"),faceUserVO,savePoint);
 
         }
         return ResultVOUtil.error(500, (String) res.get("error_msg"),faceUserVO);
@@ -95,10 +98,11 @@ public class FaceUserController {
     @Transactional
     @PostMapping("/delete")
     public ResultVO delete(Long faceId) throws UserException {
+        Object savePoint = TransactionAspectSupport.currentTransactionStatus().createSavepoint();
         FaceUser result=faceUserService.findOne(faceId);
 
         if(result == null) {
-            throw new UserException(500,"用户未找到");
+            throw new UserException(500,"用户未找到",null,savePoint);
         }
 
         //从百度云中删除用户
@@ -113,7 +117,7 @@ public class FaceUserController {
 
             log.error((String)res.get("error_msg"));
 
-            throw new UserException( 500,(String) res.get("error_msg"));
+            throw new UserException( 500,(String) res.get("error_msg"),res,savePoint);
         }
 
         faceUserService.delete(faceId);
@@ -138,11 +142,12 @@ public class FaceUserController {
     //更新用户
     @Transactional
     @PostMapping("/update")
-    public ResultVO update(FaceUserVO faceUserVO) throws UserException {
+    public ResultVO update(@Valid FaceUserVO faceUserVO) throws UserException {
+        Object savePoint = TransactionAspectSupport.currentTransactionStatus().createSavepoint();
         if(faceUserVO == null) {
             log.error("NullPointError");
 
-            throw new UserException(500,"传入参数为空");
+            throw new UserException(500,"传入参数为空",null,savePoint);
         }
         FaceUser faceUser=new FaceUser();
 
@@ -160,7 +165,7 @@ public class FaceUserController {
         if(faceId == null) {
             log.error("NullPointError");
 
-            throw new UserException(500,"传入参数为空");
+            return ResultVOUtil.error(500,"NullPointException",null);
         }
 
         FaceUser result=faceUserService.findOne(faceId);
@@ -171,6 +176,8 @@ public class FaceUserController {
     //更新人脸
     @PostMapping("/updateface")
     public ResultVO updateface(Long faceId,@RequestParam(value = "facePic") MultipartFile facePic) throws UserException {
+        Object savePoint = TransactionAspectSupport.currentTransactionStatus().createSavepoint();
+
         FaceUser source=faceUserService.findOne(faceId);
 
         String result = null;
@@ -189,8 +196,16 @@ public class FaceUserController {
         if(res.get("error_msg")!= "SUCCESS"){
             log.error((String) res.get("error_msg"));
 
-            throw new UserException(500,(String) res.get("error_msg"));
+            throw new UserException(500,(String) res.get("error_msg"),res,savePoint);
         }
         return ResultVOUtil.success(source);
+    }
+
+    //获取组列表
+    @GetMapping("/grouplist")
+    public ResultVO grouplist(){
+        JSONObject res=client.getGroupList(null);
+        log.info(res.toString());
+        return ResultVOUtil.success(res.getJSONObject("result").get("group_id_list"));
     }
 }
