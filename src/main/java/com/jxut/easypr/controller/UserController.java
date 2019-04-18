@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,7 +40,7 @@ public class UserController {
         if(bingingResult.hasErrors()) {
             log.error("创建订单 参数不正确 userVO={}",userVO);
 
-            throw new UserException(500,"参数错误");
+            throw new UserException(500,"参数错误",userVO);
         }
 
         User user=UserVO2User.converter(userVO);
@@ -48,7 +49,7 @@ public class UserController {
 
         if (result==null) {
             log.error("添加失败");
-            throw new UserException(500,"添加失败");
+            throw new UserException(500,"添加失败",userVO);
         }
 
         return ResultVOUtil.success(userVO);

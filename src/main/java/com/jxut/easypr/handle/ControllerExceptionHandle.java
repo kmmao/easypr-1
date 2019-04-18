@@ -29,8 +29,6 @@ public class ControllerExceptionHandle {
     public ResultVO handleUserException(UserException e) {
 
         log.error(e.getMsg());
-
-        TransactionAspectSupport.currentTransactionStatus().rollbackToSavepoint(e.getSavePoint());
         return ResultVOUtil.error(e.getCode(),e.getMsg(),e.getObject());
     }
 }

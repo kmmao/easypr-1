@@ -59,5 +59,12 @@ public class FaceUserServiceImp implements FaceUserService {
         return faceUserRepository.saveAndFlush(source);
     }
 
+    @Override
+    public String getname(String faceBaiduId) {
+        FaceUser result=faceUserRepository.findOneByFaceBaiduId(faceBaiduId);
+
+        return result.getFaceName();
+    }
+
 
 }

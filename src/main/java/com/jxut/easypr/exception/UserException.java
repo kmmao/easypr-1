@@ -15,9 +15,8 @@ public class UserException extends Exception {
 
     private Object object;
 
-    private Object savePoint;
 
-    public UserException(Integer code , String message,Object object,Object savePoint){
+    public UserException(Integer code , String message,Object object){
         super(message);
 
         msg=message;
@@ -27,5 +26,13 @@ public class UserException extends Exception {
         this.object=object;
 
         this.object=object;
+    }
+
+    public UserException(Integer code , String message){
+        super(message);
+
+        msg=message;
+
+        this.code=code;
     }
 }

@@ -75,6 +75,8 @@ public class FileUploadController {
         if(result==null) {
             return "fail";
         }
+
+        log.info(request.getRemoteUser());
         return "success";
     }
 }

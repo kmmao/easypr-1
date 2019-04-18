@@ -4,7 +4,6 @@ import com.baidu.aip.face.AipFace;
 import com.jxut.easypr.VO.FaceUserVO;
 import com.jxut.easypr.VO.ResultVO;
 import com.jxut.easypr.entity.FaceUser;
-import com.jxut.easypr.entity.User;
 import com.jxut.easypr.exception.UserException;
 import com.jxut.easypr.service.FaceUserService;
 import com.jxut.easypr.util.ResultVOUtil;
@@ -13,19 +12,15 @@ import org.json.JSONObject;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.io.File;
-import java.io.IOException;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
-import static java.util.Base64.getEncoder;
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.*;
 
 /**
  * @Author JXUT CXY
@@ -47,20 +42,20 @@ public class FaceUserController {
 
 
     //新增用户
-    @Transactional
+    @Transactional(rollbackFor = UserException.class)
     @PostMapping("/create")
     public ResultVO create(@Valid FaceUserVO faceUserVO, @RequestParam(value = "facePic") MultipartFile facePic) throws IOException, UserException {
-        Object savePoint = TransactionAspectSupport.currentTransactionStatus().createSavepoint();
+
         if (facePic.isEmpty()) {
             log.error("文件为空");
 
-            throw new UserException(500,"文件夹为空",faceUserVO,savePoint);
+            throw new UserException(500,"文件夹为空",faceUserVO);
         }
 
         if(faceUserVO == null) {
             log.error("NullPointError");
 
-            throw new UserException(500,"参数为空",faceUserVO,savePoint);
+            throw new UserException(500,"参数为空",faceUserVO);
         }
 
         String result=null;
@@ -88,21 +83,20 @@ public class FaceUserController {
         if (res.get("error_msg") != "SUCCESS"){
 
             log.error((String)res.get("error_msg"));
-            throw new UserException(500,(String) res.get("error_msg"),faceUserVO,savePoint);
+            throw new UserException(500,(String) res.get("error_msg"),faceUserVO);
 
         }
         return ResultVOUtil.error(500, (String) res.get("error_msg"),faceUserVO);
     }
 
     //删除用户
-    @Transactional
+    @Transactional(rollbackFor = UserException.class)
     @PostMapping("/delete")
     public ResultVO delete(Long faceId) throws UserException {
-        Object savePoint = TransactionAspectSupport.currentTransactionStatus().createSavepoint();
         FaceUser result=faceUserService.findOne(faceId);
 
         if(result == null) {
-            throw new UserException(500,"用户未找到",null,savePoint);
+            throw new UserException(500,"用户未找到",null);
         }
 
         //从百度云中删除用户
@@ -117,7 +111,7 @@ public class FaceUserController {
 
             log.error((String)res.get("error_msg"));
 
-            throw new UserException( 500,(String) res.get("error_msg"),res,savePoint);
+            throw new UserException( 500,(String) res.get("error_msg"),res);
         }
 
         faceUserService.delete(faceId);
@@ -140,14 +134,13 @@ public class FaceUserController {
         return ResultVOUtil.success(result);
     }
     //更新用户
-    @Transactional
+    @Transactional(rollbackFor = UserException.class)
     @PostMapping("/update")
     public ResultVO update(@Valid FaceUserVO faceUserVO) throws UserException {
-        Object savePoint = TransactionAspectSupport.currentTransactionStatus().createSavepoint();
         if(faceUserVO == null) {
             log.error("NullPointError");
 
-            throw new UserException(500,"传入参数为空",null,savePoint);
+            throw new UserException(500,"传入参数为空",null);
         }
         FaceUser faceUser=new FaceUser();
 
@@ -165,7 +158,7 @@ public class FaceUserController {
         if(faceId == null) {
             log.error("NullPointError");
 
-            return ResultVOUtil.error(500,"NullPointException",null);
+            throw new UserException(500,"空指针",null);
         }
 
         FaceUser result=faceUserService.findOne(faceId);
@@ -176,8 +169,6 @@ public class FaceUserController {
     //更新人脸
     @PostMapping("/updateface")
     public ResultVO updateface(Long faceId,@RequestParam(value = "facePic") MultipartFile facePic) throws UserException {
-        Object savePoint = TransactionAspectSupport.currentTransactionStatus().createSavepoint();
-
         FaceUser source=faceUserService.findOne(faceId);
 
         String result = null;
@@ -196,8 +187,9 @@ public class FaceUserController {
         if(res.get("error_msg")!= "SUCCESS"){
             log.error((String) res.get("error_msg"));
 
-            throw new UserException(500,(String) res.get("error_msg"),res,savePoint);
+            throw new UserException(500,(String) res.get("error_msg"),res);
         }
+
         return ResultVOUtil.success(source);
     }
 
@@ -207,5 +199,43 @@ public class FaceUserController {
         JSONObject res=client.getGroupList(null);
         log.info(res.toString());
         return ResultVOUtil.success(res.getJSONObject("result").get("group_id_list"));
+    }
+
+    //通过百度useid查询用户真实姓名
+    @GetMapping("/getname")
+    public String getname(String faceBaiduId, HttpServletRequest request) {
+        log.info(faceBaiduId + " , "+request.getRemoteHost());
+        return faceUserService.getname(faceBaiduId);
+    }
+
+    //使用get请求一键开锁
+    @GetMapping("/open")
+    public ResultVO open() throws IOException{
+        Socket client=new Socket("10.190.160.113",8080);
+
+//        OutputStream os=client.getOutputStream();
+//
+//        PrintWriter pr=new PrintWriter(os);
+//
+//        pr.write("open");
+//
+//        pr.flush();
+//
+//        client.shutdownOutput();
+
+        InputStream is=client.getInputStream();
+        BufferedReader in = new BufferedReader(new InputStreamReader(is));
+
+        String info=in.readLine();
+        System.out.print(info);
+
+
+        is.close();
+        in.close();
+        client.close();
+
+        log.info(String.valueOf(client.isClosed()));
+
+        return ResultVOUtil.success();
     }
 }

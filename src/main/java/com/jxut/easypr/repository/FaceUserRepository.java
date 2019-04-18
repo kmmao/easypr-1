@@ -12,4 +12,5 @@ public interface FaceUserRepository extends JpaRepository<FaceUser,Long> {
     FaceUser findOneByFaceBaiduId(String faceBaiduId);
 
     FaceUser findOneByFaceId(Long faceId);
+
 }

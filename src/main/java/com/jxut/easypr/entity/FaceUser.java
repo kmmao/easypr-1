@@ -2,9 +2,6 @@ package com.jxut.easypr.entity;
 
 import com.jxut.easypr.util.BeanCopyUtil;
 import lombok.Data;
-import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;

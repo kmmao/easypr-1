@@ -24,4 +24,6 @@ public interface FaceUserService {
     List<FaceUser> findAll();
 
     FaceUser update(FaceUser faceUser);
+
+    String getname(String faceBaiduId);
 }
