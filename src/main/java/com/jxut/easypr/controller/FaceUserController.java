@@ -213,28 +213,44 @@ public class FaceUserController {
     public ResultVO open() throws IOException{
         Socket client=new Socket("10.190.160.113",8080);
 
-//        OutputStream os=client.getOutputStream();
-//
-//        PrintWriter pr=new PrintWriter(os);
-//
-//        pr.write("open");
-//
-//        pr.flush();
-//
-//        client.shutdownOutput();
-
         InputStream is=client.getInputStream();
-        BufferedReader in = new BufferedReader(new InputStreamReader(is));
+        BufferedReader in = new BufferedReader(new InputStreamReader(is,"UTF-8"));
+        String info=null;
 
-        String info=in.readLine();
-        System.out.print(info);
+        String message=null;
 
 
-        is.close();
-        in.close();
+        info=in.readLine();
+
+        message = info;
+
+        System.out.println(message+","+info);
+
+        int code=Integer.parseInt(message);
+
+
+        PrintStream pr=new PrintStream(client.getOutputStream());
+
+        String log_msg=null;
+        if (code == 0){ //TODO 如果状态码等于3,则可以降下来,待处理
+            pr.println("open");
+
+
+        }else if(code == 3){
+            pr.println("close");
+
+        }else {
+            System.out.println(message);
+            pr.println("error");
+
+            return ResultVOUtil.error(500,"状态错误,无法开锁",null);
+
+        }
+        pr.close();
+
         client.close();
 
-        log.info(String.valueOf(client.isClosed()));
+        //log.info(String.valueOf(client.isClosed()));
 
         return ResultVOUtil.success();
     }
