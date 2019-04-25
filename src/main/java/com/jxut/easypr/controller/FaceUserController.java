@@ -78,15 +78,16 @@ public class FaceUserController {
         JSONObject res=client.addUser(result,"BASE64",faceUserVO.getGroupId(),faceUserVO.getFaceBaiduId(),null);
 
         log.info(res.toString());
-
+        String errormsg=res.getString("error_msg");
         //[判断是否上传成功
-        if (res.get("error_msg") != "SUCCESS"){
-
+        if (!errormsg.equals("SUCCESS")){
             log.error((String)res.get("error_msg"));
             throw new UserException(500,(String) res.get("error_msg"),faceUserVO);
 
         }
-        return ResultVOUtil.error(500, (String) res.get("error_msg"),faceUserVO);
+        faceUser.setEnterTime(new Date());
+        faceUserService.save(faceUser);
+        return ResultVOUtil.error(200, (String) res.get("error_msg"),faceUserVO);
     }
 
     //删除用户
@@ -104,7 +105,7 @@ public class FaceUserController {
 
         log.info(res.toString());
 
-        if (res.get("error_msg") != "SUCCESS") {
+        if (!res.getString("error_msg").equals("SUCCESS") ) {
             FaceUserVO faceUserVO=new FaceUserVO();
 
             BeanUtils.copyProperties(result,faceUserVO);
@@ -136,7 +137,7 @@ public class FaceUserController {
     //更新用户
     @Transactional(rollbackFor = UserException.class)
     @PostMapping("/update")
-    public ResultVO update(@Valid FaceUserVO faceUserVO) throws UserException {
+    public ResultVO update(@Valid FaceUserVO faceUserVO,@RequestParam(value = "facePic") MultipartFile facePic) throws UserException {
         if(faceUserVO == null) {
             log.error("NullPointError");
 
@@ -146,10 +147,32 @@ public class FaceUserController {
 
         BeanUtils.copyProperties(faceUserVO,faceUser);
 
-        FaceUser result=faceUserService.update(faceUser);
+        if(facePic!=null) {
+            String result = null;
+            //base64编码
+            try{
+                byte[] faceByte=facePic.getBytes();
+
+                result=Base64.getEncoder().encodeToString(faceByte);
+
+            } catch (IOException ex) {
+                log.error(ex.toString());
+            }
+
+            JSONObject res=client.updateUser(result,"BASE64",faceUser.getGroupId(),faceUser.getFaceBaiduId(),null);
+
+            if(!res.getString("error_msg").equals( "SUCCESS")){
+                log.error((String) res.get("error_msg"));
+
+                throw new UserException(500,(String) res.get("error_msg"),res);
+            }
+        }
+        faceUser.setEnterTime(new Date());
+
+        FaceUser resultface=faceUserService.update(faceUser);
         //TODO 已解决
 
-        return ResultVOUtil.success(result);
+        return ResultVOUtil.success(resultface);
     }
 
     //查找单个用户
@@ -164,6 +187,26 @@ public class FaceUserController {
         FaceUser result=faceUserService.findOne(faceId);
 
         return ResultVOUtil.success(result);
+    }
+
+    @Transactional(rollbackFor = UserException.class)
+    @PostMapping("/updatenoface")
+    public ResultVO updatenoface(@Valid FaceUserVO faceUserVO) throws UserException {
+        if(faceUserVO == null) {
+            log.error("NullPointError");
+
+            throw new UserException(500,"传入参数为空",null);
+        }
+        FaceUser faceUser=new FaceUser();
+
+        BeanUtils.copyProperties(faceUserVO,faceUser);
+
+        faceUser.setEnterTime(new Date());
+
+        FaceUser resultface=faceUserService.update(faceUser);
+        //TODO 已解决
+
+        return ResultVOUtil.success(resultface);
     }
 
     //更新人脸
@@ -184,11 +227,12 @@ public class FaceUserController {
 
         JSONObject res=client.updateUser(result,"BASE64",source.getGroupId(),source.getFaceBaiduId(),null);
 
-        if(res.get("error_msg")!= "SUCCESS"){
+        if(!res.getString("error_msg").equals( "SUCCESS")){
             log.error((String) res.get("error_msg"));
 
             throw new UserException(500,(String) res.get("error_msg"),res);
         }
+
 
         return ResultVOUtil.success(source);
     }
@@ -254,4 +298,30 @@ public class FaceUserController {
 
         return ResultVOUtil.success();
     }
+    //获取状态  1 可进入  0 不可进入  3 被控制状态
+    @GetMapping("/getstatus")
+    public ResultVO getstatus() throws IOException {
+        Socket client=new Socket("10.190.160.113",8080);
+
+        InputStream is=client.getInputStream();
+        BufferedReader in = new BufferedReader(new InputStreamReader(is,"UTF-8"));
+        String info=null;
+
+        String message=null;
+
+
+        info=in.readLine();
+
+        message = info;
+
+        log.info(message);
+
+        PrintStream pr=new PrintStream(client.getOutputStream());
+
+        pr.println("error");
+
+        return ResultVOUtil.success(message);
+
+    }
+
 }
