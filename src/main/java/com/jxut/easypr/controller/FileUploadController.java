@@ -1,7 +1,7 @@
 package com.jxut.easypr.controller;
 
 import com.jxut.easypr.core.CharsRecognise;
-import com.jxut.easypr.core.PlateDetect;
+import com.jxut.easypr.core.AppCodeDemo;
 import com.jxut.easypr.entity.User;
 import com.jxut.easypr.repository.UserRepository;
 import com.jxut.easypr.service.Imp.PlateRecogniseServiceImp;
@@ -63,8 +63,11 @@ public class FileUploadController {
         }
 
 
-        Mat src=opencv_imgcodecs.imread(filePath+fileName);
-        String ret = plateRecogniseServiceImp.plateRecognise(src);
+//        Mat src=opencv_imgcodecs.imread(filePath+fileName);
+//        String[] test = plateRecogniseServiceImp.mutiPlateRecognise(src);
+//        String ret = plateRecogniseServiceImp.plateRecognise(src);
+        String ret=AppCodeDemo.plateOutput(filePath+fileName);
+
         log.info("plate={}",ret);
 
         if(ret==null) {

@@ -23,6 +23,7 @@ public class ResultVOUtil {
         ResultVO resultVO=new ResultVO();
         resultVO.setMsg(msg);
         resultVO.setCode(code);
+        resultVO.setData(object);
         return resultVO;
     }
 }

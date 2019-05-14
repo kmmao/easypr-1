@@ -18,23 +18,19 @@ import java.util.Vector;
 @Service
 public class PlateRecogniseServiceImp implements PlateRecogniseService {
 
-//    static PlateDetect plateDetect =null;
-//    static CharsRecognise cr=null;
-//    static{
-//        plateDetect=new PlateDetect();
-//        plateDetect.setPDLifemode(true);
-//        cr = new CharsRecognise();
-//    }
-    @Autowired
-    private PlateDetect plateDetect;
-
-    @Autowired
-    private CharsRecognise cr;
+    static PlateDetect plateDetect =null;
+    static CharsRecognise cr=null;
+    static{
+        plateDetect=new PlateDetect();
+        plateDetect.setPDLifemode(true);
+        cr = new CharsRecognise();
+    }
 
     @Override
     public String plateRecognise(Mat mat) {
-
-        plateDetect.setPDLifemode(true);
+        // TODO 此处切换模式
+        plateDetect.setPDLifemode(false);
+        plateDetect.setPDDebug(true);
         Vector<Mat> matVector = new Vector<Mat>(1);
         if (0 == plateDetect.plateDetect(mat, matVector)) {
             if(matVector.size()>0){
@@ -46,7 +42,6 @@ public class PlateRecogniseServiceImp implements PlateRecogniseService {
 
     @Override
     public String[] mutiPlateRecognise(Mat mat) {
-        plateDetect.setPDLifemode(true);
         PlateDetect plateDetect = new PlateDetect();
         plateDetect.setPDLifemode(true);
         Vector<Mat> matVector = new Vector<Mat>(10);

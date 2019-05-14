@@ -49,13 +49,13 @@ public class FaceUserController {
         if (facePic.isEmpty()) {
             log.error("文件为空");
 
-            throw new UserException(500,"文件夹为空",faceUserVO);
+            throw new UserException(1,"文件夹为空",faceUserVO);
         }
 
         if(faceUserVO == null) {
             log.error("NullPointError");
 
-            throw new UserException(500,"参数为空",faceUserVO);
+            throw new UserException(1,"参数为空",faceUserVO);
         }
 
         String result=null;
@@ -82,12 +82,12 @@ public class FaceUserController {
         //[判断是否上传成功
         if (!errormsg.equals("SUCCESS")){
             log.error((String)res.get("error_msg"));
-            throw new UserException(500,(String) res.get("error_msg"),faceUserVO);
+            throw new UserException(1,(String) res.get("error_msg"),faceUserVO);
 
         }
         faceUser.setEnterTime(new Date());
         faceUserService.save(faceUser);
-        return ResultVOUtil.error(200, (String) res.get("error_msg"),faceUserVO);
+        return ResultVOUtil.error(0, (String) res.get("error_msg"),faceUserVO);
     }
 
     //删除用户
@@ -97,7 +97,7 @@ public class FaceUserController {
         FaceUser result=faceUserService.findOne(faceId);
 
         if(result == null) {
-            throw new UserException(500,"用户未找到",null);
+            throw new UserException(1,"用户未找到",null);
         }
 
         //从百度云中删除用户
@@ -112,7 +112,7 @@ public class FaceUserController {
 
             log.error((String)res.get("error_msg"));
 
-            throw new UserException( 500,(String) res.get("error_msg"),res);
+            throw new UserException(1,(String) res.get("error_msg"),res);
         }
 
         faceUserService.delete(faceId);
@@ -141,7 +141,7 @@ public class FaceUserController {
         if(faceUserVO == null) {
             log.error("NullPointError");
 
-            throw new UserException(500,"传入参数为空",null);
+            throw new UserException(1,"传入参数为空",null);
         }
         FaceUser faceUser=new FaceUser();
 
@@ -164,7 +164,7 @@ public class FaceUserController {
             if(!res.getString("error_msg").equals( "SUCCESS")){
                 log.error((String) res.get("error_msg"));
 
-                throw new UserException(500,(String) res.get("error_msg"),res);
+                throw new UserException(1,(String) res.get("error_msg"),res);
             }
         }
         faceUser.setEnterTime(new Date());
@@ -181,7 +181,7 @@ public class FaceUserController {
         if(faceId == null) {
             log.error("NullPointError");
 
-            throw new UserException(500,"空指针",null);
+            throw new UserException(1,"空指针",null);
         }
 
         FaceUser result=faceUserService.findOne(faceId);
@@ -195,7 +195,7 @@ public class FaceUserController {
         if(faceUserVO == null) {
             log.error("NullPointError");
 
-            throw new UserException(500,"传入参数为空",null);
+            throw new UserException(1,"传入参数为空",null);
         }
         FaceUser faceUser=new FaceUser();
 
@@ -230,7 +230,7 @@ public class FaceUserController {
         if(!res.getString("error_msg").equals( "SUCCESS")){
             log.error((String) res.get("error_msg"));
 
-            throw new UserException(500,(String) res.get("error_msg"),res);
+            throw new UserException(1,(String) res.get("error_msg"),res);
         }
 
 
@@ -255,7 +255,7 @@ public class FaceUserController {
     //使用get请求一键开锁
     @GetMapping("/open")
     public ResultVO open() throws IOException{
-        Socket client=new Socket("10.190.160.113",8080);
+        Socket client=new Socket("192.168.43.18",8080);
 
         InputStream is=client.getInputStream();
         BufferedReader in = new BufferedReader(new InputStreamReader(is,"UTF-8"));
@@ -287,7 +287,7 @@ public class FaceUserController {
             System.out.println(message);
             pr.println("error");
 
-            return ResultVOUtil.error(500,"状态错误,无法开锁",null);
+            return ResultVOUtil.error(1,"状态错误,无法开锁","fail");
 
         }
         pr.close();
@@ -296,12 +296,12 @@ public class FaceUserController {
 
         //log.info(String.valueOf(client.isClosed()));
 
-        return ResultVOUtil.success();
+        return ResultVOUtil.success("OK");
     }
     //获取状态  1 可进入  0 不可进入  3 被控制状态
     @GetMapping("/getstatus")
     public ResultVO getstatus() throws IOException {
-        Socket client=new Socket("10.190.160.113",8080);
+        Socket client=new Socket("192.168.43.18",8080);
 
         InputStream is=client.getInputStream();
         BufferedReader in = new BufferedReader(new InputStreamReader(is,"UTF-8"));
