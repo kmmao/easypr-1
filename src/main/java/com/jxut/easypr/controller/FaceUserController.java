@@ -188,7 +188,7 @@ public class FaceUserController {
 
         return ResultVOUtil.success(result);
     }
-
+    //TODO 无人脸更新
     @Transactional(rollbackFor = UserException.class)
     @PostMapping("/updatenoface")
     public ResultVO updatenoface(@Valid FaceUserVO faceUserVO) throws UserException {

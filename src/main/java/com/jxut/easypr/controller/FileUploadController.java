@@ -1,14 +1,9 @@
 package com.jxut.easypr.controller;
 
-import com.jxut.easypr.core.CharsRecognise;
-import com.jxut.easypr.core.AppCodeDemo;
+import com.jxut.easypr.core.*;
 import com.jxut.easypr.entity.User;
 import com.jxut.easypr.repository.UserRepository;
-import com.jxut.easypr.service.Imp.PlateRecogniseServiceImp;
-import com.jxut.easypr.service.PlateRecogniseService;
 import lombok.extern.slf4j.Slf4j;
-import net.bytebuddy.asm.Advice;
-import org.bytedeco.javacpp.opencv_core.Mat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,13 +12,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import org.bytedeco.javacpp.opencv_imgcodecs;
-
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
-import java.util.Vector;
 
 /**
  * @Author JXUT CXY
@@ -36,8 +28,7 @@ import java.util.Vector;
 
 public class FileUploadController {
 
-    @Autowired
-    private PlateRecogniseServiceImp plateRecogniseServiceImp;
+    //private PlateRecogniseServiceImp plateRecogniseServiceImp;
 
     @Autowired
     private UserRepository userRepository;
@@ -66,7 +57,8 @@ public class FileUploadController {
 //        Mat src=opencv_imgcodecs.imread(filePath+fileName);
 //        String[] test = plateRecogniseServiceImp.mutiPlateRecognise(src);
 //        String ret = plateRecogniseServiceImp.plateRecognise(src);
-        String ret=AppCodeDemo.plateOutput(filePath+fileName);
+        //String ret=AppCodeDemo.plateOutput(filePath+fileName); // 阿里云接口,因限制500次数,已弃用
+        String ret=BaiduPlate.plate(filePath+fileName);//一天200次
 
         log.info("plate={}",ret);
 
